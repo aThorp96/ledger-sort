@@ -1,9 +1,14 @@
 package main
 
 import (
-	date "github.com/araddon/dateparse"
+	"bufio"
+	"fmt"
+	"io"
 	"os"
+	"strings"
 	"time"
+
+	date "github.com/araddon/dateparse"
 )
 
 type Transaction struct {
@@ -11,17 +16,17 @@ type Transaction struct {
 	text string
 }
 
-func GetTransaction(reader io.Reader) transaction {
+func GetTransaction(reader io.Reader) (Transaction, error) {
 
 	scanner := bufio.NewScanner(reader)
 	transactionComplete := false
 	var inTransaction bool
-	var trans transaction
+	var trans Transaction
 
-	for !transactinComplete {
+	for !transactionComplete {
 
 		// Seclude the data form the line read in.
-		line = scanner.Text()
+		line := scanner.Text()
 		trimmedLine := strings.Trim(line, "\t")
 
 		// Write comments unchanged
@@ -35,43 +40,47 @@ func GetTransaction(reader io.Reader) transaction {
 			rawDate := splitLine[0]
 
 			// Record date
-			time, err := dateparse.ParseAny(rawDate)
+			time, err := date.ParseAny(rawDate)
 			if err != nil {
-				return rtrn, fmt.Errorf("%d: Unable to parse date %s% %v\n", linecount, rawDate, err)
+				return trans, fmt.Errorf("Unable to parse date %s% %v\n", rawDate, err)
 			}
-			fmtDate := strings.Split(time.String(), " ")[0]
+			trans.time = time
 
 			trans.text += line + "\n"
 			inTransaction = true
 
 		} else if len(trimmedLine) == 0 {
 			inTransaction = false
-			rtrn += "\n"
+			trans.text += "\n"
 			transactionComplete = true
 		} else {
-			rtrn += line + "\n"
+			trans.text += line + "\n"
 		}
+		fmt.Println(line) //log
 	}
-	return *trans
+	return trans, nil
 }
 
 // return the difference in time between the two trnasactions.
 // Returns positive if the calling transaction takes place after the parameter transaction
 func (this *Transaction) Compare(that Transaction) int64 {
 
-	return this.Time.Unix() - that.Time.Unix()
+	return this.time.Unix() - that.time.Unix()
 
 }
 
-func Parse(file *File) []Transaction {
-	err = nil
+func Parse(file *os.File) ([]Transaction, error) {
+	fmt.Println("Parsing") // log
+	var err error
+	var t Transaction
 	trans := []Transaction{}
 
 	for err == nil {
-		t, err := GetTransaction(file)
+		fmt.Println("running loop") //log
+		t, err = GetTransaction(file)
 		if err != nil {
 			trans = append(trans, t)
 		}
 	}
-	return trans
+	return trans, err
 }
