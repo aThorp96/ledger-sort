@@ -1,9 +1,9 @@
 package main
 
 import (
-	"time"
-
 	date "github.com/araddon/dateparse"
+	"os"
+	"time"
 )
 
 type Transaction struct {
@@ -57,8 +57,21 @@ func GetTransaction(reader io.Reader) transaction {
 
 // return the difference in time between the two trnasactions.
 // Returns positive if the calling transaction takes place after the parameter transaction
-func (this *Transaction) compare(that Transaction) int64 {
+func (this *Transaction) Compare(that Transaction) int64 {
 
 	return this.Time.Unix() - that.Time.Unix()
 
+}
+
+func Parse(file *File) []Transaction {
+	err = nil
+	trans := []Transaction{}
+
+	for err == nil {
+		t, err := GetTransaction(file)
+		if err != nil {
+			trans = append(trans, t)
+		}
+	}
+	return trans
 }

@@ -20,11 +20,11 @@ func main() {
 		return
 	}
 
-	formatted, err := Parse(ledgerfile)
+	transactions, err := Parse(ledgerfile)
 	if err != nil {
 		fmt.Print(err)
 	}
-	fmt.Print(formatted)
+	sorted := Sort(transactions)
+	fmt.Print(sorted)
 	ledgerfile.Close()
-
 }
