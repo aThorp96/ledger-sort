@@ -23,16 +23,22 @@ func GetTransaction(reader io.Reader) (Transaction, error) {
 	var inTransaction bool
 	var trans Transaction
 
-	for !transactionComplete {
+	for !transactionComplete && err := scanner.Err() != nil {
 
 		// Seclude the data form the line read in.
+		scanner.Scan()
 		line := scanner.Text()
+		fmt.Println("line: ", line)
 		trimmedLine := strings.Trim(line, "\t")
 
 		// Write comments unchanged
 		if strings.HasPrefix(trimmedLine, ";") {
 			trans.text += line + "\n"
 
+		} else if len(trimmedLine) == 0 {
+			inTransaction = false
+			trans.text += "\n"
+			transactionComplete = true
 			// Handle date parsing
 		} else if !inTransaction {
 
@@ -49,10 +55,6 @@ func GetTransaction(reader io.Reader) (Transaction, error) {
 			trans.text += line + "\n"
 			inTransaction = true
 
-		} else if len(trimmedLine) == 0 {
-			inTransaction = false
-			trans.text += "\n"
-			transactionComplete = true
 		} else {
 			trans.text += line + "\n"
 		}

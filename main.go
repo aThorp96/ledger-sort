@@ -24,7 +24,7 @@ func main() {
 	if err != nil {
 		fmt.Print(err)
 	}
-	sorted := Sort(transactions)
-	fmt.Print(sorted)
+	Sort(transactions, 0, len(transactions))
+	fmt.Print(transactions)
 	ledgerfile.Close()
 }

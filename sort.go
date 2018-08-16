@@ -1,11 +1,19 @@
 package main
 
+import "fmt"
+
 func Merge(trans []Transaction, low int, mid int, high int) {
 	i := low
 	j := mid + 1
-	t := trans[low : high+1]
+	t := trans[low:high]
+
+	//log
+	fmt.Println("high: %d", high)
 
 	for k := low; k <= high; k++ {
+		fmt.Println("k: %d", k)
+		fmt.Println("j: %d", j)
+		fmt.Println("i: %d", i)
 		if (j <= high) && (i > mid || trans[i].Compare(t[j]) > 0) {
 			trans[k] = t[j]
 			j++
